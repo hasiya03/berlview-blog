@@ -1,4 +1,3 @@
-import React from 'react';
 import { PenSquare } from 'lucide-react';
 
 export function Navbar() {

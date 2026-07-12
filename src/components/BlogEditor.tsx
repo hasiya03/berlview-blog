@@ -59,7 +59,7 @@ export function BlogEditor({ initialData, onSave, onClose }: BlogEditorProps) {
               
               // We need to import supabase at the top of this file to use it here.
               // Assuming it's imported as `import { supabase } from '../services/supabase';`
-              const { data, error } = await supabase.storage
+              const { error } = await supabase.storage
                 .from('blog-images')
                 .upload(fileName, blob, {
                   contentType: 'image/jpeg',
