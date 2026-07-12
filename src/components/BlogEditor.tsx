@@ -105,13 +105,41 @@ export function BlogEditor({ initialData, onSave, onClose }: BlogEditorProps) {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!title) {
       alert("Please provide a title/topic.");
       return;
     }
-    onSave({ title, description, coverImage });
-    onClose();
+    
+    setIsGenerating(true);
+    try {
+      const dateStr = new Date().toLocaleDateString();
+      const markdownContent = `# ${title}\n\n*Published on ${dateStr}*\n\n${description}\n`;
+      
+      const blob = new Blob([markdownContent], { type: 'text/markdown' });
+      const fileName = `blog-${Date.now()}-${Math.random().toString(36).substring(7)}.md`;
+      
+      const { error } = await supabase.storage
+        .from('blog-images')
+        .upload(fileName, blob, {
+          contentType: 'text/markdown',
+          upsert: false
+        });
+        
+      if (error) throw error;
+      
+      const { data: { publicUrl: markdownUrl } } = supabase.storage
+        .from('blog-images')
+        .getPublicUrl(fileName);
+        
+      onSave({ title, description, coverImage, markdownUrl });
+      onClose();
+    } catch (err) {
+      console.error("Error generating markdown file:", err);
+      alert("Failed to upload markdown file. Ensure your Supabase storage is configured correctly.");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   // Close on Escape key

@@ -59,7 +59,8 @@ export function useBlogs() {
         .insert([{
           title: blog.title,
           description: blog.description,
-          coverImage: blog.coverImage
+          coverImage: blog.coverImage,
+          markdownUrl: blog.markdownUrl
         }])
         .select()
         .single();
@@ -81,15 +82,15 @@ export function useBlogs() {
     }
   };
 
-  const deleteImageFromStorage = async (imageUrl: string | null | undefined) => {
-    if (!imageUrl || !imageUrl.includes('/blog-images/')) return;
+  const deleteFileFromStorage = async (fileUrl: string | null | undefined) => {
+    if (!fileUrl || !fileUrl.includes('/blog-images/')) return;
     try {
-      const fileName = imageUrl.split('/blog-images/').pop();
+      const fileName = fileUrl.split('/blog-images/').pop();
       if (fileName) {
         await supabase.storage.from('blog-images').remove([fileName]);
       }
     } catch (e) {
-      console.error("Failed to delete old image from storage", e);
+      console.error("Failed to delete old file from storage", e);
     }
   };
 
@@ -107,9 +108,14 @@ export function useBlogs() {
 
       if (error) throw error;
       
-      // If the image changed, delete the old one to save space
-      if (oldBlog && updates.coverImage !== undefined && oldBlog.coverImage !== updates.coverImage) {
-        deleteImageFromStorage(oldBlog.coverImage);
+      // If the image or markdown file changed, delete the old one to save space
+      if (oldBlog) {
+        if (updates.coverImage !== undefined && oldBlog.coverImage !== updates.coverImage) {
+          deleteFileFromStorage(oldBlog.coverImage);
+        }
+        if (updates.markdownUrl !== undefined && oldBlog.markdownUrl !== updates.markdownUrl) {
+          deleteFileFromStorage(oldBlog.markdownUrl);
+        }
       }
     } catch (error) {
       console.error('Error updating blog:', error);
@@ -131,9 +137,10 @@ export function useBlogs() {
 
       if (error) throw error;
       
-      // Delete the associated image if it exists
+      // Delete the associated files if they exist
       if (oldBlog) {
-        deleteImageFromStorage(oldBlog.coverImage);
+        deleteFileFromStorage(oldBlog.coverImage);
+        deleteFileFromStorage(oldBlog.markdownUrl);
       }
     } catch (error) {
       console.error('Error deleting blog:', error);

@@ -9,11 +9,10 @@ interface BlogCardProps {
 
 export function BlogCard({ blog, onEdit, onDelete }: BlogCardProps) {
   const handleShare = async () => {
-    // For now, share creates a mock URL or copies the title/description
-    const shareText = `Check out this blog: ${blog.title}\n\n${blog.description}`;
+    const shareText = blog.markdownUrl ? blog.markdownUrl : `Check out this blog: ${blog.title}\n\n${blog.description}`;
     try {
       await navigator.clipboard.writeText(shareText);
-      alert('Blog content copied to clipboard! You can manually paste it into your site for now.');
+      alert(blog.markdownUrl ? 'Direct Markdown file link copied to clipboard!' : 'Blog content copied to clipboard! Save the blog again to generate a direct file link.');
     } catch (err) {
       console.error('Failed to copy text: ', err);
     }
