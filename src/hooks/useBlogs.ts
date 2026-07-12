@@ -81,8 +81,22 @@ export function useBlogs() {
     }
   };
 
+  const deleteImageFromStorage = async (imageUrl: string | null | undefined) => {
+    if (!imageUrl || !imageUrl.includes('/blog-images/')) return;
+    try {
+      const fileName = imageUrl.split('/blog-images/').pop();
+      if (fileName) {
+        await supabase.storage.from('blog-images').remove([fileName]);
+      }
+    } catch (e) {
+      console.error("Failed to delete old image from storage", e);
+    }
+  };
+
   const updateBlog = async (id: string, updates: Partial<Omit<Blog, 'id' | 'createdAt'>>) => {
     try {
+      const oldBlog = blogs.find(b => b.id === id);
+      
       // Optimistic update
       setBlogs(prev => prev.map(b => b.id === id ? { ...b, ...updates } : b));
 
@@ -92,6 +106,11 @@ export function useBlogs() {
         .eq('id', id);
 
       if (error) throw error;
+      
+      // If the image changed, delete the old one to save space
+      if (oldBlog && updates.coverImage !== undefined && oldBlog.coverImage !== updates.coverImage) {
+        deleteImageFromStorage(oldBlog.coverImage);
+      }
     } catch (error) {
       console.error('Error updating blog:', error);
       fetchBlogs(); // Revert on error
@@ -100,6 +119,8 @@ export function useBlogs() {
 
   const deleteBlog = async (id: string) => {
     try {
+      const oldBlog = blogs.find(b => b.id === id);
+      
       // Optimistic update
       setBlogs(prev => prev.filter(b => b.id !== id));
 
@@ -109,6 +130,11 @@ export function useBlogs() {
         .eq('id', id);
 
       if (error) throw error;
+      
+      // Delete the associated image if it exists
+      if (oldBlog) {
+        deleteImageFromStorage(oldBlog.coverImage);
+      }
     } catch (error) {
       console.error('Error deleting blog:', error);
       fetchBlogs(); // Revert on error
