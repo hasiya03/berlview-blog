@@ -5,8 +5,8 @@ import { generateBlogDescription } from '../services/ai';
 import { supabase } from '../services/supabase';
 
 // Rich Text Editor dependencies
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 import TurndownService from 'turndown';
 
 interface BlogEditorProps {
