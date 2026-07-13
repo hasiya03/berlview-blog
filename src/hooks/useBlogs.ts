@@ -83,11 +83,17 @@ export function useBlogs() {
   };
 
   const deleteFileFromStorage = async (fileUrl: string | null | undefined) => {
-    if (!fileUrl || !fileUrl.includes('/blog-images/')) return;
+    if (!fileUrl) return;
     try {
-      const fileName = fileUrl.split('/blog-images/').pop();
-      if (fileName) {
-        await supabase.storage.from('blog-images').remove([fileName]);
+      let bucket = '';
+      if (fileUrl.includes('/blog-images/')) bucket = 'blog-images';
+      else if (fileUrl.includes('/blog-md/')) bucket = 'blog-md';
+      
+      if (bucket) {
+        const fileName = fileUrl.split(`/${bucket}/`).pop();
+        if (fileName) {
+          await supabase.storage.from(bucket).remove([fileName]);
+        }
       }
     } catch (e) {
       console.error("Failed to delete old file from storage", e);

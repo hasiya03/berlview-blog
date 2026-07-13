@@ -225,8 +225,49 @@ export function BlogEditor({ initialData, onSave, onClose }: BlogEditorProps) {
     try {
       const dateStr = new Date().toLocaleDateString();
       
-      // Convert the rich text HTML to Markdown using Turndown
-      const contentMarkdown = turndownService.turndown(content);
+      // Parse HTML to find and upload base64 images
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = content;
+      const images = tempDiv.querySelectorAll('img');
+      
+      for (let i = 0; i < images.length; i++) {
+        const img = images[i];
+        if (img.src.startsWith('data:image/')) {
+          const matches = img.src.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
+          if (matches) {
+            const mimeType = matches[1];
+            const base64Data = matches[2];
+            const ext = mimeType.split('/')[1] || 'png';
+            
+            try {
+              const byteCharacters = atob(base64Data);
+              const byteNumbers = new Array(byteCharacters.length);
+              for (let j = 0; j < byteCharacters.length; j++) {
+                byteNumbers[j] = byteCharacters.charCodeAt(j);
+              }
+              const byteArray = new Uint8Array(byteNumbers);
+              const blob = new Blob([byteArray], { type: mimeType });
+              
+              const imgFileName = `inline-${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+              const { error: imgError } = await supabase.storage
+                .from('blog-images')
+                .upload(imgFileName, blob, { contentType: mimeType, upsert: false });
+                
+              if (!imgError) {
+                const { data: { publicUrl: imgUrl } } = supabase.storage
+                  .from('blog-images')
+                  .getPublicUrl(imgFileName);
+                img.src = imgUrl;
+              }
+            } catch (err) {
+              console.error("Error processing base64 image", err);
+            }
+          }
+        }
+      }
+      
+      // Convert the processed HTML to Markdown using Turndown
+      const contentMarkdown = turndownService.turndown(tempDiv.innerHTML);
       
       // Combine it with the title and date
       const markdownDocument = `# ${title}\n\n*Published on ${dateStr}*\n\n${contentMarkdown}\n`;
@@ -236,7 +277,7 @@ export function BlogEditor({ initialData, onSave, onClose }: BlogEditorProps) {
       const fileName = `blog-${Date.now()}-${Math.random().toString(36).substring(7)}.md`;
       
       const { error } = await supabase.storage
-        .from('blog-images') // Reusing the public bucket
+        .from('blog-md') // Use the new blog-md bucket
         .upload(fileName, blob, {
           contentType: 'text/markdown',
           upsert: false
@@ -245,7 +286,7 @@ export function BlogEditor({ initialData, onSave, onClose }: BlogEditorProps) {
       if (error) throw error;
       
       const { data: { publicUrl: markdownUrl } } = supabase.storage
-        .from('blog-images')
+        .from('blog-md')
         .getPublicUrl(fileName);
         
       // Auto-generate short description if empty
