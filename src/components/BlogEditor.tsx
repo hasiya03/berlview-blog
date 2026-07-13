@@ -19,6 +19,7 @@ interface BlogEditorProps {
 export function BlogEditor({ initialData, onSave, onClose }: BlogEditorProps) {
   const [title, setTitle] = useState(initialData?.title || '');
   const [shortDescription, setShortDescription] = useState(initialData?.description || '');
+  const [isActive, setIsActive] = useState(initialData?.is_active ?? false);
   
   // We need to fetch the markdown if editing, but for simplicity we assume 
   // 'initialData.markdownUrl' is handled externally. Since the old system used 'description' 
@@ -299,7 +300,8 @@ export function BlogEditor({ initialData, onSave, onClose }: BlogEditorProps) {
         title, 
         description: finalShortDesc, 
         coverImage, 
-        markdownUrl 
+        markdownUrl,
+        is_active: isActive
       });
       onClose();
     } catch (err) {
@@ -322,16 +324,39 @@ export function BlogEditor({ initialData, onSave, onClose }: BlogEditorProps) {
     <div className="modal-overlay" onClick={(e) => {
       if (e.target === e.currentTarget) onClose();
     }}>
-      <div className="modal-content" style={{ maxWidth: '800px' }}>
+      <div className="modal-content" style={{ maxWidth: '100vw', width: '100%', height: '100vh', maxHeight: '100vh', borderRadius: 0, display: 'flex', flexDirection: 'column' }}>
         <div className="modal-header">
           <h2 style={{ fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Sparkles className="text-accent" size={24} />
             {initialData ? 'Edit Blog' : 'Create New Blog'}
           </h2>
-          <button className="btn-icon" onClick={onClose}><X size={24} /></button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>{isActive ? 'Active' : 'Inactive'}</span>
+              <label style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', position: 'relative' }}>
+                <input 
+                  type="checkbox" 
+                  checked={isActive} 
+                  onChange={(e) => setIsActive(e.target.checked)} 
+                  style={{ opacity: 0, width: 0, height: 0, position: 'absolute' }}
+                />
+                <div style={{
+                  width: '44px', height: '24px', backgroundColor: isActive ? 'var(--accent)' : 'var(--border)',
+                  borderRadius: '12px', position: 'relative', transition: 'background-color 0.2s'
+                }}>
+                  <div style={{
+                    width: '20px', height: '20px', backgroundColor: 'white', borderRadius: '50%',
+                    position: 'absolute', top: '2px', left: isActive ? '22px' : '2px', transition: 'left 0.2s',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                  }} />
+                </div>
+              </label>
+            </div>
+            <button className="btn-icon" onClick={onClose}><X size={24} /></button>
+          </div>
         </div>
         
-        <div className="modal-body">
+        <div className="modal-body" style={{ flex: 1, overflowY: 'auto' }}>
           <div className="input-group">
             <label className="input-label">Cover Image</label>
             <input 

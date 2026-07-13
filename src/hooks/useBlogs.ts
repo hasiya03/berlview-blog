@@ -60,7 +60,8 @@ export function useBlogs() {
           title: blog.title,
           description: blog.description,
           coverImage: blog.coverImage,
-          markdownUrl: blog.markdownUrl
+          markdownUrl: blog.markdownUrl,
+          is_active: blog.is_active ?? false
         }])
         .select()
         .single();

@@ -4,5 +4,6 @@ export interface Blog {
   description: string;
   coverImage: string;
   markdownUrl?: string;
+  is_active?: boolean;
   createdAt: number;
 }
