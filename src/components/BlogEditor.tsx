@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { X, Image as ImageIcon, Sparkles, Loader2 } from 'lucide-react';
 import type { Blog } from '../types';
 import { generateBlogDescription } from '../services/ai';
@@ -37,16 +37,63 @@ export function BlogEditor({ initialData, onSave, onClose }: BlogEditorProps) {
     codeBlockStyle: 'fenced'
   });
 
-  // Quill modules configuration for the toolbar
-  const modules = {
-    toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      ['blockquote', 'code-block'],
-      ['clean']
-    ]
+  const quillRef = useRef<ReactQuill>(null);
+
+  // Custom image handler to upload inline images to Supabase instead of converting to Base64
+  const imageHandler = () => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files ? input.files[0] : null;
+      if (!file) return;
+
+      setIsGenerating(true);
+      try {
+        const fileName = `inline-${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
+        const { error } = await supabase.storage
+          .from('blog-images')
+          .upload(fileName, file, { upsert: false });
+          
+        if (error) throw error;
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from('blog-images')
+          .getPublicUrl(fileName);
+          
+        const quill = quillRef.current?.getEditor();
+        if (quill) {
+          const range = quill.getSelection(true);
+          quill.insertEmbed(range.index, 'image', publicUrl);
+          quill.setSelection(range.index + 1, 0); // Move cursor after the image
+        }
+      } catch (err) {
+        console.error("Error uploading inline image:", err);
+        alert("Failed to upload inline image to Supabase.");
+      } finally {
+        setIsGenerating(false);
+      }
+    };
   };
+
+  // Quill modules configuration for the toolbar
+  // Must use useMemo to prevent the editor from losing focus on re-renders
+  const modules = useMemo(() => ({
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['blockquote', 'code-block', 'link', 'image'],
+        ['clean']
+      ],
+      handlers: {
+        image: imageHandler
+      }
+    }
+  }), []);
 
   useEffect(() => {
     async function loadExistingContent() {
@@ -323,6 +370,7 @@ export function BlogEditor({ initialData, onSave, onClose }: BlogEditorProps) {
             
             <div className="rich-text-container">
               <ReactQuill 
+                ref={quillRef}
                 theme="snow" 
                 value={content} 
                 onChange={setContent}
