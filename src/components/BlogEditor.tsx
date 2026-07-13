@@ -8,6 +8,7 @@ import { supabase } from '../services/supabase';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import TurndownService from 'turndown';
+import { marked } from 'marked';
 
 interface BlogEditorProps {
   initialData?: Blog | null;
@@ -48,12 +49,37 @@ export function BlogEditor({ initialData, onSave, onClose }: BlogEditorProps) {
   };
 
   useEffect(() => {
-    // If we're editing an existing blog, we should fetch its markdown and convert to HTML, 
-    // or just leave it blank for now. A robust implementation would parse the MD back to HTML.
-    // For now, we'll focus on the new authoring flow.
-    if (initialData?.markdownUrl) {
-      setContent('<p><em>Existing content is stored in Markdown. Please edit from scratch or implement an MD to HTML parser.</em></p>');
+    async function loadExistingContent() {
+      if (initialData?.markdownUrl) {
+        try {
+          const response = await fetch(initialData.markdownUrl);
+          if (response.ok) {
+            const mdText = await response.text();
+            
+            // Strip out the title and "Published on" date that we automatically prepend on save
+            // to prevent them from stacking up every time we edit and save.
+            let cleanMdText = mdText;
+            
+            // Look for the auto-generated "# Title\n\n*Published on Date*\n\n" prefix
+            const lines = mdText.split('\n');
+            if (lines.length >= 4 && lines[0].startsWith('# ') && lines[2].startsWith('*Published on')) {
+              cleanMdText = lines.slice(4).join('\n');
+            }
+            
+            // Parse Markdown back into HTML for the Quill editor
+            const htmlContent = await marked.parse(cleanMdText);
+            setContent(htmlContent);
+          } else {
+            setContent('<p><em>Failed to load existing markdown content.</em></p>');
+          }
+        } catch (error) {
+          console.error("Error loading markdown:", error);
+          setContent('<p><em>Error loading existing markdown content.</em></p>');
+        }
+      }
     }
+    
+    loadExistingContent();
   }, [initialData]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
