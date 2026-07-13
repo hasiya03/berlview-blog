@@ -321,3 +321,147 @@ textarea.input {
   border-radius: var(--radius-lg);
   border: 1px dashed var(--border);
 }
+
+/* ==========================================================================
+   Markdown Content Styling 
+   ========================================================================== */
+
+.markdown-body {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--text);
+}
+
+.markdown-body h1, 
+.markdown-body h2, 
+.markdown-body h3, 
+.markdown-body h4 {
+  margin-top: 2em;
+  margin-bottom: 0.75em;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.markdown-body h1 { font-size: 2.2em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+.markdown-body h2 { font-size: 1.8em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+.markdown-body h3 { font-size: 1.5em; }
+.markdown-body h4 { font-size: 1.25em; }
+
+.markdown-body p {
+  margin-top: 0;
+  margin-bottom: 1.2em;
+}
+
+.markdown-body ul, 
+.markdown-body ol {
+  margin-top: 0;
+  margin-bottom: 1.2em;
+  padding-left: 2em;
+}
+
+.markdown-body li {
+  margin-bottom: 0.25em;
+}
+
+.markdown-body li > p {
+  margin-bottom: 0;
+}
+
+.markdown-body blockquote {
+  margin: 0 0 1.2em 0;
+  padding: 0.5em 1em;
+  color: var(--text-dim);
+  border-left: 4px solid var(--accent);
+  background: var(--surface);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.markdown-body code {
+  font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.9em;
+  padding: 0.2em 0.4em;
+  margin: 0;
+  background-color: var(--surface);
+  border-radius: 4px;
+}
+
+.markdown-body pre {
+  padding: 16px;
+  overflow: auto;
+  font-size: 0.9em;
+  line-height: 1.45;
+  background-color: #f6f8fa;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.2em;
+}
+
+.markdown-body pre code {
+  padding: 0;
+  background-color: transparent;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  box-sizing: content-box;
+  background-color: #fff;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  margin: 1.5em 0;
+}
+
+.markdown-body table {
+  border-spacing: 0;
+  border-collapse: collapse;
+  margin-bottom: 1.2em;
+  width: 100%;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  padding: 8px 13px;
+  border: 1px solid var(--border);
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: var(--surface);
+}
+
+/* ==========================================================================
+   React Quill Overrides
+   ========================================================================== */
+
+.quill {
+  background-color: var(--bg);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+}
+
+.ql-toolbar.ql-snow {
+  border: 1px solid var(--border) !important;
+  border-top-left-radius: var(--radius-md);
+  border-top-right-radius: var(--radius-md);
+  background-color: var(--surface);
+  font-family: inherit;
+}
+
+.ql-container.ql-snow {
+  border: 1px solid var(--border) !important;
+  border-bottom-left-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
+  border-top: none !important;
+  font-family: inherit !important;
+  font-size: 1rem !important;
+}
+
+.ql-editor {
+  min-height: 300px;
+  padding: 16px 20px !important;
+  line-height: 1.6;
+}
+
+.ql-editor:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-dim);
+  border-bottom-left-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
+}

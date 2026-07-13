@@ -35,13 +35,14 @@ export function BlogCard({ blog, onEdit, onDelete }: BlogCardProps) {
         </p>
         
         <div className="flex gap-2 mt-auto pt-4" style={{ borderTop: '1px solid var(--border)' }}>
-          <button className="btn btn-secondary flex" style={{ flex: 1 }} onClick={() => onEdit(blog)}>
+          <button className="btn btn-secondary flex" style={{ flex: 1 }} onClick={(e) => { e.stopPropagation(); onEdit(blog); }}>
             <Edit2 size={16} /> Edit
           </button>
-          <button className="btn btn-icon" onClick={handleShare} title="Copy Share Text">
+          <button className="btn btn-icon" onClick={(e) => { e.stopPropagation(); handleShare(); }} title="Copy Share Text">
             <Share2 size={18} />
           </button>
-          <button className="btn btn-icon text-danger" onClick={() => {
+          <button className="btn btn-icon text-danger" onClick={(e) => {
+            e.stopPropagation();
             if (window.confirm('Are you sure you want to delete this blog?')) {
               onDelete(blog.id);
             }

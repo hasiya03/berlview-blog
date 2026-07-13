@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { BlogCard } from './components/BlogCard';
 import { BlogEditor } from './components/BlogEditor';
+import { BlogView } from './components/BlogView';
 import { useBlogs } from './hooks/useBlogs';
 import { PlusCircle, Database } from 'lucide-react';
 import type { Blog } from './types';
@@ -10,6 +11,7 @@ function App() {
   const { blogs, addBlog, updateBlog, deleteBlog } = useBlogs();
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
+  const [viewingBlog, setViewingBlog] = useState<Blog | null>(null);
 
   const handleOpenEditor = (blog?: Blog) => {
     if (blog) {
@@ -33,6 +35,8 @@ function App() {
     }
   };
 
+  // If a blog is being viewed, we can render the BlogView instead of the main page,
+  // or render it as an overlay. BlogView uses a modal-overlay so we just render it.
   return (
     <>
       <Navbar />
@@ -60,12 +64,18 @@ function App() {
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
             {blogs.map(blog => (
-              <BlogCard 
-                key={blog.id} 
-                blog={blog} 
-                onEdit={handleOpenEditor} 
-                onDelete={deleteBlog} 
-              />
+              <div key={blog.id} onClick={() => setViewingBlog(blog)} style={{ cursor: 'pointer' }}>
+                <BlogCard 
+                  blog={blog} 
+                  onEdit={(b) => {
+                    // Prevent viewing when clicking edit
+                    handleOpenEditor(b);
+                  }} 
+                  onDelete={(id) => {
+                    deleteBlog(id);
+                  }} 
+                />
+              </div>
             ))}
           </div>
         )}
@@ -76,6 +86,13 @@ function App() {
           initialData={editingBlog} 
           onSave={handleSaveBlog} 
           onClose={handleCloseEditor} 
+        />
+      )}
+
+      {viewingBlog && (
+        <BlogView 
+          blog={viewingBlog} 
+          onClose={() => setViewingBlog(null)} 
         />
       )}
     </>
