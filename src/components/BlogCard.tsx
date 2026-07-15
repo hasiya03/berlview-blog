@@ -33,24 +33,35 @@ export function BlogCard({ blog, onEdit, onDelete, onToggleActive }: BlogCardPro
         <div className="flex justify-between items-start mb-2">
           <h3 style={{ fontSize: '1.25rem', paddingRight: '12px' }}>{blog.title}</h3>
           {onToggleActive && (
-            <button 
-              onClick={(e) => { e.stopPropagation(); onToggleActive(blog.id, blog.is_active ?? false); }}
-              className="badge" 
-              style={{ 
-                background: blog.is_active ? 'var(--accent)' : 'var(--border)',
-                color: blog.is_active ? 'white' : 'var(--text)',
-                padding: '4px 8px',
-                borderRadius: '12px',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              title="Click to toggle status"
+            <div 
+              className="flex items-center gap-2"
+              onClick={(e) => { e.stopPropagation(); }}
             >
-              {blog.is_active ? 'Active' : 'Inactive'}
-            </button>
+              <span className="text-dim" style={{ fontSize: '0.8rem', fontWeight: 500 }}>
+                {blog.is_active ? 'Active' : 'Inactive'}
+              </span>
+              <label style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', position: 'relative' }}>
+                <input 
+                  type="checkbox" 
+                  checked={blog.is_active ?? false} 
+                  onChange={(e) => onToggleActive(blog.id, blog.is_active ?? false)} 
+                  style={{ opacity: 0, width: 0, height: 0, position: 'absolute' }}
+                />
+                <div style={{
+                  width: '40px', height: '22px', 
+                  backgroundColor: blog.is_active ? 'var(--accent)' : 'var(--border)',
+                  borderRadius: '11px', position: 'relative', transition: 'background-color 0.2s'
+                }}>
+                  <div style={{
+                    width: '18px', height: '18px', backgroundColor: 'white', borderRadius: '50%',
+                    position: 'absolute', top: '2px', 
+                    left: blog.is_active ? '20px' : '2px', 
+                    transition: 'left 0.2s',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                  }} />
+                </div>
+              </label>
+            </div>
           )}
         </div>
         <p className="text-dim line-clamp-3 mb-4" style={{ flexGrow: 1 }}>
