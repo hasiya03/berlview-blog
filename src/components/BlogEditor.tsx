@@ -224,8 +224,6 @@ export function BlogEditor({ initialData, onSave, onClose }: BlogEditorProps) {
     
     setIsGenerating(true);
     try {
-      const dateStr = new Date().toLocaleDateString();
-      
       // Parse HTML to find and upload base64 images
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = content;
