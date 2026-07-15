@@ -30,7 +30,8 @@ const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY;
 
 async function getBlogList() {
   // We use ?select= to only grab the lightweight fields we need, ordering by newest first.
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/blogs?select=id,title,coverImage,description,markdownUrl,created_at&order=created_at.desc`, {
+  // Note: We also use &is_active=eq.true to only fetch published/active blogs.
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/blogs?select=id,title,coverImage,description,markdownUrl,is_active,created_at&is_active=eq.true&order=created_at.desc`, {
     headers: {
       "apikey": SUPABASE_ANON_KEY,
       "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
@@ -52,6 +53,7 @@ The API will return an array of objects looking like this:
     "description": "A long string describing the blog...",
     "coverImage": "https://[PROJECT_ID].supabase.co/storage/v1/object/public/blog-images/image1.jpg",
     "markdownUrl": "https://[PROJECT_ID].supabase.co/storage/v1/object/public/blog-images/blog-123.md",
+    "is_active": true,
     "created_at": "2026-07-12T15:30:00Z"
   }
 ]

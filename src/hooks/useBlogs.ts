@@ -45,11 +45,19 @@ export function useBlogs() {
 
   const addBlog = async (blog: Omit<Blog, 'id' | 'createdAt'>) => {
     try {
+      // Generate ID from title + random string for uniqueness
+      const baseSlug = blog.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric chars with dashes
+        .replace(/^-+|-+$/g, '');    // Remove leading/trailing dashes
+      
+      const randomSuffix = crypto.randomUUID().split('-')[0];
+      const finalId = `${baseSlug}-${randomSuffix}`;
+      
       // Optimistic update
-      const tempId = crypto.randomUUID();
       const newBlog: Blog = {
         ...blog,
-        id: tempId,
+        id: finalId,
         createdAt: Date.now(),
       };
       setBlogs(prev => [newBlog, ...prev]);
@@ -57,6 +65,7 @@ export function useBlogs() {
       const { data, error } = await supabase
         .from('blogs')
         .insert([{
+          id: finalId,
           title: blog.title,
           description: blog.description,
           coverImage: blog.coverImage,
@@ -70,7 +79,7 @@ export function useBlogs() {
 
       // Update with actual DB ID and timestamp
       if (data) {
-        setBlogs(prev => prev.map(b => b.id === tempId ? {
+        setBlogs(prev => prev.map(b => b.id === finalId ? {
           ...b,
           id: data.id,
           createdAt: new Date(data.created_at).getTime()
