@@ -44,7 +44,7 @@ export function BlogCard({ blog, onEdit, onDelete, onToggleActive }: BlogCardPro
                 <input 
                   type="checkbox" 
                   checked={blog.is_active ?? false} 
-                  onChange={(e) => onToggleActive(blog.id, blog.is_active ?? false)} 
+                  onChange={() => onToggleActive(blog.id, blog.is_active ?? false)} 
                   style={{ opacity: 0, width: 0, height: 0, position: 'absolute' }}
                 />
                 <div style={{
