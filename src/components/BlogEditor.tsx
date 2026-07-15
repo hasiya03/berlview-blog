@@ -270,8 +270,8 @@ export function BlogEditor({ initialData, onSave, onClose }: BlogEditorProps) {
       // Convert the processed HTML to Markdown using Turndown
       const contentMarkdown = turndownService.turndown(tempDiv.innerHTML);
       
-      // Combine it with the title and date
-      const markdownDocument = `# ${title}\n\n*Published on ${dateStr}*\n\n${contentMarkdown}\n`;
+      // We no longer prepend the title and date here, so the markdown file contains exactly what is in the editor.
+      const markdownDocument = `${contentMarkdown}\n`;
       
       // Upload the markdown to Supabase Storage
       const blob = new Blob([markdownDocument], { type: 'text/markdown' });
