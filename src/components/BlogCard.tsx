@@ -67,6 +67,20 @@ export function BlogCard({ blog, onEdit, onDelete, onToggleActive }: BlogCardPro
         <p className="text-dim line-clamp-3 mb-4" style={{ flexGrow: 1 }}>
           {blog.description}
         </p>
+
+        {blog.tags && blog.tags.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+            {blog.tags.map(tag => (
+              <span key={tag} style={{ 
+                background: 'var(--bg-secondary)', color: 'var(--text)', 
+                padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem',
+                border: '1px solid var(--border)'
+              }}>
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
         
         <div className="flex gap-2 mt-auto pt-4" style={{ borderTop: '1px solid var(--border)' }}>
           <button className="btn btn-secondary flex" style={{ flex: 1 }} onClick={(e) => { e.stopPropagation(); onEdit(blog); }}>

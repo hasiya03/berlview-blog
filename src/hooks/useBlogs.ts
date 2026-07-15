@@ -70,7 +70,8 @@ export function useBlogs() {
           description: blog.description,
           coverImage: blog.coverImage,
           markdownUrl: blog.markdownUrl,
-          is_active: blog.is_active ?? false
+          is_active: blog.is_active ?? false,
+          tags: blog.tags || []
         }])
         .select()
         .single();

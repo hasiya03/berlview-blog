@@ -20,6 +20,8 @@ export function BlogEditor({ initialData, onSave, onClose }: BlogEditorProps) {
   const [title, setTitle] = useState(initialData?.title || '');
   const [shortDescription, setShortDescription] = useState(initialData?.description || '');
   const [isActive, setIsActive] = useState(initialData?.is_active ?? false);
+  const [tags, setTags] = useState<string[]>(initialData?.tags || []);
+  const [tagInput, setTagInput] = useState('');
   
   // We need to fetch the markdown if editing, but for simplicity we assume 
   // 'initialData.markdownUrl' is handled externally. Since the old system used 'description' 
@@ -193,6 +195,21 @@ export function BlogEditor({ initialData, onSave, onClose }: BlogEditorProps) {
     }
   };
 
+  const handleTagInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const newTag = tagInput.trim().toLowerCase();
+      if (newTag && !tags.includes(newTag)) {
+        setTags([...tags, newTag]);
+      }
+      setTagInput('');
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
   const handleGenerateAI = async () => {
     if (!title) {
       alert("Please enter a topic/title first to generate content.");
@@ -299,7 +316,8 @@ export function BlogEditor({ initialData, onSave, onClose }: BlogEditorProps) {
         description: finalShortDesc, 
         coverImage, 
         markdownUrl,
-        is_active: isActive
+        is_active: isActive,
+        tags
       });
       onClose();
     } catch (err) {
@@ -403,6 +421,35 @@ export function BlogEditor({ initialData, onSave, onClose }: BlogEditorProps) {
               value={shortDescription}
               onChange={e => setShortDescription(e.target.value)}
               maxLength={200}
+            />
+          </div>
+
+          <div className="input-group mt-4">
+            <label className="input-label">Tags</label>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+              {tags.map(tag => (
+                <span key={tag} style={{ 
+                  display: 'flex', alignItems: 'center', gap: '4px',
+                  background: 'var(--accent)', color: 'white', padding: '4px 12px',
+                  borderRadius: '16px', fontSize: '0.85rem'
+                }}>
+                  #{tag}
+                  <button 
+                    onClick={() => removeTag(tag)}
+                    style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}
+                  >
+                    <X size={14} />
+                  </button>
+                </span>
+              ))}
+            </div>
+            <input 
+              type="text" 
+              className="input" 
+              placeholder="Add tags separated by comma or enter..."
+              value={tagInput}
+              onChange={e => setTagInput(e.target.value)}
+              onKeyDown={handleTagInput}
             />
           </div>
 

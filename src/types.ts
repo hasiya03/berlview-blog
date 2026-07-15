@@ -5,5 +5,6 @@ export interface Blog {
   coverImage: string;
   markdownUrl?: string;
   is_active?: boolean;
+  tags?: string[];
   createdAt: number;
 }

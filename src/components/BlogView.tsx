@@ -69,10 +69,23 @@ export function BlogView({ blog, onClose }: BlogViewProps) {
 
         <div className="blog-view-header" style={{ marginBottom: '40px' }}>
           <h1 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '16px', lineHeight: 1.2 }}>{blog.title}</h1>
-          <div className="text-dim flex items-center gap-2">
+          <div className="text-dim flex items-center gap-2 mb-4">
             <Calendar size={16} />
             <span>{new Date(blog.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
           </div>
+          
+          {blog.tags && blog.tags.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {blog.tags.map(tag => (
+                <span key={tag} style={{ 
+                  background: 'var(--accent)', color: 'white', 
+                  padding: '4px 12px', borderRadius: '16px', fontSize: '0.85rem'
+                }}>
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="blog-view-content" style={{ minHeight: '400px', paddingBottom: '80px' }}>
