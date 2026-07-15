@@ -5,9 +5,10 @@ interface BlogCardProps {
   blog: Blog;
   onEdit: (blog: Blog) => void;
   onDelete: (id: string) => void;
+  onToggleActive?: (id: string, currentStatus: boolean) => void;
 }
 
-export function BlogCard({ blog, onEdit, onDelete }: BlogCardProps) {
+export function BlogCard({ blog, onEdit, onDelete, onToggleActive }: BlogCardProps) {
   const handleShare = async () => {
     const shareText = blog.markdownUrl ? blog.markdownUrl : `Check out this blog: ${blog.title}\n\n${blog.description}`;
     try {
@@ -29,7 +30,29 @@ export function BlogCard({ blog, onEdit, onDelete }: BlogCardProps) {
       )}
       
       <div className="flex-col p-6 flex" style={{ padding: '24px', flexGrow: 1 }}>
-        <h3 className="mb-2" style={{ fontSize: '1.25rem' }}>{blog.title}</h3>
+        <div className="flex justify-between items-start mb-2">
+          <h3 style={{ fontSize: '1.25rem', paddingRight: '12px' }}>{blog.title}</h3>
+          {onToggleActive && (
+            <button 
+              onClick={(e) => { e.stopPropagation(); onToggleActive(blog.id, blog.is_active ?? false); }}
+              className="badge" 
+              style={{ 
+                background: blog.is_active ? 'var(--accent)' : 'var(--border)',
+                color: blog.is_active ? 'white' : 'var(--text)',
+                padding: '4px 8px',
+                borderRadius: '12px',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+              title="Click to toggle status"
+            >
+              {blog.is_active ? 'Active' : 'Inactive'}
+            </button>
+          )}
+        </div>
         <p className="text-dim line-clamp-3 mb-4" style={{ flexGrow: 1 }}>
           {blog.description}
         </p>

@@ -114,6 +114,9 @@ function App() {
                   onDelete={(id) => {
                     deleteBlog(id);
                   }} 
+                  onToggleActive={(id, currentStatus) => {
+                    updateBlog(id, { is_active: !currentStatus });
+                  }}
                 />
               </div>
             ))}
